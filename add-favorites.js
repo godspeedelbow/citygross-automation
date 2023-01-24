@@ -23,10 +23,15 @@
     const product = await getProduct(favorite.itemNo);
     console.log("product", product);
 
-    await addProduct(cart.id, product);
+    if (!product) {
+      console.log("invalid product, skipping");
+    } else {
+      await addProduct(cart.id, product);
 
-    console.log("added product to cart", product);
+      console.log("added product to cart", product);
+    }
   }
+  console.log("done!");
 })();
 
 function getFavorites() {
@@ -122,9 +127,14 @@ function doRequest(url, props = {}) {
 }
 
 function getAuthToken() {
-  return document.cookie
-    .split(";")
-    .find((cookie) => cookie.startsWith("cg_reloaded"))
-    .split("%22")
-    .find((str) => str.startsWith("ey"));
+  return JSON.parse(
+    decodeURIComponent(
+      document.cookie
+        .split(";")
+        .map((c) => c.trim())
+        .find((cookie) => cookie.trim().startsWith("cg_reloaded"))
+        .split("=")
+        .pop()
+    )
+  ).access_token;
 }
